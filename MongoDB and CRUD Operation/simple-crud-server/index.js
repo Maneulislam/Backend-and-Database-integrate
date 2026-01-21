@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express()
 const port = process.env.PORT || 3000;
 
@@ -32,6 +32,38 @@ async function run() {
         const database = client.db('simpleCrudDB');
         const usersCollection = database.collection('users');
 
+        app.get('/users', async (req, res) => {
+            const cursor = usersCollection.find();
+            const result = await cursor.toArray();
+            res.send(result);
+        })
+
+        app.get('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await usersCollection.findOne(query);
+            res.send(result)
+            console.log(result);
+        })
+
+
+        app.put('/update/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const user = req.body;
+
+            const updateDocument = {
+                $set: {
+                    name: user.name,
+                    email: user.email
+                },
+            };
+
+            const result = await usersCollection.updateOne(query, updateDocument);
+            res.send(result)
+            console.log(result);
+        })
+
         app.post('/users', async (req, res) => {
             console.log("Data in the server", req.body);
             const newUser = req.body;
@@ -39,6 +71,14 @@ async function run() {
             res.send(result)
 
 
+        })
+
+        app.delete('/users/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const result = await usersCollection.deleteOne(query);
+            res.send(result)
+            console.log(result);
         })
 
 
