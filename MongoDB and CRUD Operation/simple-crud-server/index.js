@@ -44,6 +44,8 @@ async function run() {
             const result = await usersCollection.findOne(query);
             res.send(result)
             console.log(result);
+
+
         })
 
 
